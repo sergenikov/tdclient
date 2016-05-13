@@ -16,3 +16,11 @@ class APILink(object):
         r = requests.get("https://todoist.com/oauth/authorize", params=payload)
         print(r.text)
         print(r.url)
+
+    def get_project_list(self):
+        api = todoist.TodoistAPI()
+        user = api.login('sergescr@live.ca', 'sovhozbushuiha')
+        print(user['full_name'])
+        response = api.sync(resource_types=['all'])
+        for project in response['Projects']:
+            print(project['name'])

@@ -21,7 +21,7 @@ def main(argv):
             print("Getting today tasks")
 
     api_link = APILink()
-    api_link.get_auth_token()
+    api_link.get_project_list()
 
 # run
 if __name__ == "__main__":
