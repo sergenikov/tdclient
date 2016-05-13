@@ -1,0 +1,27 @@
+TDDaemon (TDD) is interface between Todoist API and local TDclient. It implements
+Pyro4 daemon and listens for clients.
+
+Example of Normal Operation
+---------------------------------
+TDDaemon waits for a client to make a request such as what are todo items for
+today. TDD contacts TD API to get requested information.
+
+Design Questions
+---------------------------------
+- How does TDD register with TD API?
+- Where does it store authentication information?
+  - Does a user have to authenticate each time TDD starts?
+  - Where is user information stored?
+  - TODO: Research OAuth with TD API.
+
+
+TDD Interface
+----------------------------------
+BASIC
+- connect to TD API
+- authenticate with TD API
+- optional: get some default information from TD (e.g. todo today, etc)
+
+EXTENSIONS
+- have notifications about upcoming events
+- respond to certain commands sent by the client
