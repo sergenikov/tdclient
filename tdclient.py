@@ -30,12 +30,19 @@ def main(argv):
     # token = api_link.get_auth_token()
     # print(token)
 
-    # fbAuth = HttpServerHandler.TokenHandler(os.environ['FB_APP_ID'],
-                # os.environ['FB_APP_SECRET'])
     fbAuth = HttpServerHandler.TokenHandler(CLIENT_ID, CLIENT_SECRET)
 
     access_token = fbAuth.get_access_token()
     print("main: Access token " + access_token)
+
+    # access_token = "049087b73474184fa848902a34ebde8f3db2f43b"
+
+    api_link = APILink()
+    response = api_link.syncronize(access_token)
+    for project in response['Projects']:
+        print(project['name'])
+    # api_link.addItem("test new item")
+
 
 
 # run

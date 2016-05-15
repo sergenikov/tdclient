@@ -16,11 +16,9 @@ class APILink(object):
     Sync with TD server and return response of the API request.
     TODO: don't use this in the long run. It will be deprecated.
     """
-    def syncronize(self):
-        _api = todoist.TodoistAPI()
-        _user = _api.login('sergescr@live.ca', 'sovhozbushuiha')
-        print(_user['full_name'])
-        response = _api.sync(resource_types=['all'])
+    def syncronize(self, token):
+        self._api = todoist.TodoistAPI(token)
+        response = self._api.sync(resource_types=['all'])
         return response
 
     """
@@ -47,3 +45,6 @@ class APILink(object):
         print(response.content)
         print(response.url)
         print(response.is_redirect)
+
+    def addItem(self, item_name):
+        self._api.items.add(item_name)
