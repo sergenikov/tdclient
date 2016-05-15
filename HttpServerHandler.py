@@ -6,25 +6,7 @@ from webbrowser import open_new
 import json
 
 REDIRECT_URL = 'http://localhost:8080/'
-
 PORT = 8080
-
-# def get_access_token_from_url(url, payload):
-#     """
-#     Parse the access token from Facebook's response
-#     Args:
-#         uri: the facebook graph api oauth URI containing valid client_id,
-#              redirect_uri, client_secret, and auth_code arguements
-#     Returns:
-#         a string containing the access key
-#     """
-#     print("get_access_token_from_url: url=" + url)
-#     # token_json = str(urlopen(url, data="").read())
-#     token_json = str(urlopen(url))
-#     # parsed_json = json.loads(token_json.read())
-#     parsed_json = json.loads(token_json.read())
-#     print("---------------------- access token=" + parsed_json['access_token'])
-#     return parsed_json['access_token']
 
 def get_access_token_from_url(url, payload):
     print("\nget_access_token_from_url: url=" + url)
@@ -54,37 +36,30 @@ class HTTPServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         print("***** runnning do_GET")
-        # GRAPH_API_AUTH_URI = ('https://todoist.com/oauth/access_token'
-        #     + '?client_id=' + self.app_id
-        #     + '&redirect_uri='+ REDIRECT_URL
-        #     + '&client_secret=' + self.app_secret
-        #     + '&code=')
-
 
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
         self.end_headers()
 
-        # TODO: modify this for the todoist code parsing
         if 'code' in self.path:
             self.auth_code = self.path.split('=')[2]
             print("*** auth_code=" + self.auth_code)
 
-            TOKEN_EXCHANGE_URL = ('https://todoist.com/oauth/access_token'
+            """
+            Token exchange url is in the form
+            'https://todoist.com/oauth/access_token'
                 + '?client_id=' + self.app_id
                 + '&client_secret=' + self.app_secret
                 + '&code=' + self.auth_code
                 + '&redirect_uri='+ REDIRECT_URL)
+            """
 
             url = 'https://todoist.com/oauth/access_token'
-
             payload = {
                 'client_id'     : self.app_id,
                 'client_secret' : self.app_secret,
                 'code'          : self.auth_code,
                 'redirect_uri'  : REDIRECT_URL }
-
-            print(TOKEN_EXCHANGE_URL)
 
             self.wfile.write(bytes('<html><h1>You may now close this window.'
                               + '</h1></html>', 'utf-8'))
@@ -131,11 +106,3 @@ class TokenHandler:
         #Return the access token
         print("get_access_token: access token " + httpServer.access_token)
         return httpServer.access_token
-
-# e226a4b146dc046ba0747be3f20163a6e11b7635
-
-# $ curl "https://todoist.com/oauth/access_token" \
-#     -d "client_id=0123456789abcdef" \
-#     -d "client_secret=secret" \
-#     -d "code=abcdef" \
-#     -d "redirect_uri=https://example.com"
