@@ -35,7 +35,7 @@ def main(argv):
     fbAuth = HttpServerHandler.TokenHandler(CLIENT_ID, CLIENT_SECRET)
 
     access_token = fbAuth.get_access_token()
-    print("Access token " + access_token)
+    print("main: Access token " + access_token)
 
 
 # run

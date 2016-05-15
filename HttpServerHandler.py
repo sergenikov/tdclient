@@ -1,25 +1,48 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.request import urlopen, HTTPError
+# from urllib.request import urlopen, HTTPError
+import urllib.parse
+import urllib.request
 from webbrowser import open_new
+import json
 
 REDIRECT_URL = 'http://localhost:8080/'
 
 PORT = 8080
 
-def get_access_token_from_url(url):
-    """
-    Parse the access token from Facebook's response
-    Args:
-        uri: the facebook graph api oauth URI containing valid client_id,
-             redirect_uri, client_secret, and auth_code arguements
-    Returns:
-        a string containing the access key
-    """
-    token = str(urlopen(url).read(), 'utf-8')
-    return token.split('=')[1].split('&')[0]
+# def get_access_token_from_url(url, payload):
+#     """
+#     Parse the access token from Facebook's response
+#     Args:
+#         uri: the facebook graph api oauth URI containing valid client_id,
+#              redirect_uri, client_secret, and auth_code arguements
+#     Returns:
+#         a string containing the access key
+#     """
+#     print("get_access_token_from_url: url=" + url)
+#     # token_json = str(urlopen(url, data="").read())
+#     token_json = str(urlopen(url))
+#     # parsed_json = json.loads(token_json.read())
+#     parsed_json = json.loads(token_json.read())
+#     print("---------------------- access token=" + parsed_json['access_token'])
+#     return parsed_json['access_token']
+
+def get_access_token_from_url(url, payload):
+    print("\nget_access_token_from_url: url=" + url)
+    print("payload " + str(payload))
+
+    data = urllib.parse.urlencode(payload)
+    print("data " + str(data))
+    data = data.encode('ascii') # data should be bytes
+    req = urllib.request.Request(url, data)
+    with urllib.request.urlopen(req) as response:
+        the_page = response.read()
+
+    print(str(the_page.decode('ascii')))
+    parsed_page = json.loads(str(the_page.decode('ascii')))
+    print("access token=" + parsed_page['access_token'])
+    return parsed_page['access_token']
 
 class HTTPServerHandler(BaseHTTPRequestHandler):
-
     """
     HTTP Server callbacks to handle Facebook OAuth redirects
     """
@@ -31,9 +54,12 @@ class HTTPServerHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         print("***** runnning do_GET")
-        GRAPH_API_AUTH_URI = ('https://todoist.com/oauth/'
-            + 'access_token?client_id=' + self.app_id + '&redirect_uri='
-            + REDIRECT_URL + '&client_secret=' + self.app_secret + '&code=')
+        # GRAPH_API_AUTH_URI = ('https://todoist.com/oauth/access_token'
+        #     + '?client_id=' + self.app_id
+        #     + '&redirect_uri='+ REDIRECT_URL
+        #     + '&client_secret=' + self.app_secret
+        #     + '&code=')
+
 
         self.send_response(200)
         self.send_header('Content-type', 'text/html')
@@ -41,14 +67,32 @@ class HTTPServerHandler(BaseHTTPRequestHandler):
 
         # TODO: modify this for the todoist code parsing
         if 'code' in self.path:
-            self.auth_code = self.path.split('=')[1]
+            self.auth_code = self.path.split('=')[2]
+            print("*** auth_code=" + self.auth_code)
+
+            TOKEN_EXCHANGE_URL = ('https://todoist.com/oauth/access_token'
+                + '?client_id=' + self.app_id
+                + '&client_secret=' + self.app_secret
+                + '&code=' + self.auth_code
+                + '&redirect_uri='+ REDIRECT_URL)
+
+            url = 'https://todoist.com/oauth/access_token'
+
+            payload = {
+                'client_id'     : self.app_id,
+                'client_secret' : self.app_secret,
+                'code'          : self.auth_code,
+                'redirect_uri'  : REDIRECT_URL }
+
+            print(TOKEN_EXCHANGE_URL)
+
             self.wfile.write(bytes('<html><h1>You may now close this window.'
                               + '</h1></html>', 'utf-8'))
-            self.server.access_token = get_access_token_from_url(
-                    GRAPH_API_AUTH_URI + self.auth_code)
-            print("\n*** ACCESS CODE START***")
-            print(GRAPH_API_AUTH_URI + self.auth_code)
-            print("*** ACCESS CODE END***\n")
+
+            print("do_GET: before get_access_token_from_url")
+            temp_token = get_access_token_from_url(url, payload)
+            print("do_GET: access token=" + temp_token)
+            self.server.access_token = temp_token
 
 class TokenHandler:
     """
@@ -74,9 +118,15 @@ class TokenHandler:
         print("get_access_token: starting HTTP server on localhost:" + str(PORT))
         httpServer = HTTPServer(
                 ('localhost', PORT),
+                # this creates the RequestHandlerClass object within lambda function
                 lambda request, address, server: HTTPServerHandler(
-                    request, address, server, self._id, self._secret))
+                    request, address, server, "4a393dd72f3d4abebb2e88adc8cd2518", "91af3f95d59d40fab7cd5aff6a57c6df"))
+        # httpServer = HTTPServer(
+        #         ('localhost', PORT),
+        #         lambda request, address, server: HTTPServerHandler(
+        #             request, address, server, self._id, self._secret))
         #This function will block until it receives a request
+        print("before handling request")
         httpServer.handle_request()
         #Return the access token
         print("get_access_token: access token " + httpServer.access_token)
