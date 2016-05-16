@@ -1,5 +1,4 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
-# from urllib.request import urlopen, HTTPError
 import urllib.parse
 import urllib.request
 from webbrowser import open_new
@@ -14,7 +13,7 @@ def get_access_token_from_url(url, payload):
 
     data = urllib.parse.urlencode(payload)
     print("data " + str(data))
-    data = data.encode('ascii') # data should be bytes
+    data = data.encode('ascii')
     req = urllib.request.Request(url, data)
     with urllib.request.urlopen(req) as response:
         the_page = response.read()
@@ -26,10 +25,9 @@ def get_access_token_from_url(url, payload):
 
 class HTTPServerHandler(BaseHTTPRequestHandler):
     """
-    HTTP Server callbacks to handle Facebook OAuth redirects
+    HTTP Server callbacks to handle Todoist OAuth redirects
     """
     def __init__(self, request, address, server, a_id, a_secret):
-        print("*** init server")
         self.app_id = a_id
         self.app_secret = a_secret
         super().__init__(request, address, server)
@@ -44,15 +42,6 @@ class HTTPServerHandler(BaseHTTPRequestHandler):
         if 'code' in self.path:
             self.auth_code = self.path.split('=')[2]
             print("*** auth_code=" + self.auth_code)
-
-            """
-            Token exchange url is in the form
-            'https://todoist.com/oauth/access_token'
-                + '?client_id=' + self.app_id
-                + '&client_secret=' + self.app_secret
-                + '&code=' + self.auth_code
-                + '&redirect_uri='+ REDIRECT_URL)
-            """
 
             url = 'https://todoist.com/oauth/access_token'
             payload = {
@@ -70,17 +59,11 @@ class HTTPServerHandler(BaseHTTPRequestHandler):
             self.server.access_token = temp_token
 
 class TokenHandler:
-    """
-    Class used to handle Facebook oAuth
-    """
     def __init__(self, a_id, a_secret):
         self._id = a_id
         self._secret = a_secret
 
     def get_access_token(self):
-        # ACCESS_URI = ('https://todoist.com/oauth/authorize'
-        #     + '?client_id=' + self._id + '&redirect_uri='
-        #     + REDIRECT_URL + "&scope=data:read")
 
         ACCESS_URI = ('https://todoist.com/oauth/authorize'
             + '?client_id=' + self._id
@@ -96,10 +79,6 @@ class TokenHandler:
                 # this creates the RequestHandlerClass object within lambda function
                 lambda request, address, server: HTTPServerHandler(
                     request, address, server, self._id, self._secret))
-        # httpServer = HTTPServer(
-        #         ('localhost', PORT),
-        #         lambda request, address, server: HTTPServerHandler(
-        #             request, address, server, self._id, self._secret))
         #This function will block until it receives a request
         print("before handling request")
         httpServer.handle_request()
