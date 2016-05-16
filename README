@@ -25,3 +25,15 @@ BASIC
 EXTENSIONS
 - have notifications about upcoming events
 - respond to certain commands sent by the client
+
+
+Config file
+--------------------------------
+Located in $HOME/.todoist. It holds three fields:
+client_id: abcdefg123456
+client_secret: abcdefg123456
+access_token: abcdefg123456
+
+Meant to add basic safety to this info so that they are not part of the code,
+but I will try to come up with a better way (if there is one) to store this
+information. Definitely not optimal.
