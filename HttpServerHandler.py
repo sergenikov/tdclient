@@ -95,7 +95,7 @@ class TokenHandler:
                 ('localhost', PORT),
                 # this creates the RequestHandlerClass object within lambda function
                 lambda request, address, server: HTTPServerHandler(
-                    request, address, server, "4a393dd72f3d4abebb2e88adc8cd2518", "91af3f95d59d40fab7cd5aff6a57c6df"))
+                    request, address, server, self._id, self._secret))
         # httpServer = HTTPServer(
         #         ('localhost', PORT),
         #         lambda request, address, server: HTTPServerHandler(

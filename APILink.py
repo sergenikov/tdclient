@@ -1,42 +1,56 @@
 import todoist, requests
 
-CLIENT_ID = "4a393dd72f3d4abebb2e88adc8cd2518"
-CLIENT_SECRET = "91af3f95d59d40fab7cd5aff6a57c6df"
-
 class APILink(object):
 
-    # Private
+    """ Private """
     _user = ""
     _api = ""
+    _client_id = ""
+    _client_secret = ""
+    _access_token = ""
 
-    def __init__(self):
-        print("Creating APILink class")
+    def __init__(self, client_id, client_secret):
+        """ Constructor """
+        self._client_id = client_id
+        self._client_secret = client_secret
 
-    """
-    Sync with TD server and return response of the API request.
-    TODO: don't use this in the long run. It will be deprecated.
-    """
+    def get_client_id(self):
+        return self._client_id
+
+    def get_client_secret(self):
+        return self._client_secret
+
+    def set_access_token(self, token):
+        self._access_token = token
+
+    # @Property
+    def get_access_token(self):
+        return self._access_token
+
     def syncronize(self, token):
+        """
+        Sync with TD server and return response of the API request.
+        """
         self._api = todoist.TodoistAPI(token)
         response = self._api.sync(resource_types=['all'])
         return response
 
-    """
-    Syncs and gets list of current projects
-    """
     def get_project_list(self, api):
+        """
+        Syncs and gets list of current projects
+        """
         response = api.sync(resource_types=['all'])
         for project in response['Projects']:
             print(project['name'])
 
-    """
-    Not used for anything right now. Stub for future OAuth2 stuff.
-    """
     def get_auth_token(self):
+        """
+        Not used for anything right now. Stub for future OAuth2 stuff.
+        """
         payload = {
-            "client_id" : CLIENT_ID,
+            "client_id" : _client_id,
             "scope"     : "data:read",
-            "state"     : CLIENT_SECRET
+            "state"     : _client_secret
         }
         response = requests.get("https://todoist.com/oauth/authorize",
             params=payload)

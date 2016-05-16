@@ -1,13 +1,10 @@
-import sys, getopt, os
+import sys, getopt, os, pwd
 from APILink import APILink
 # from HTTPServerHandler import HTTPServerHandler
 # from HTTPServerHandler import TokenHandler
 import HttpServerHandler
 
 usage = ("\nTODO usage")
-
-CLIENT_ID = "4a393dd72f3d4abebb2e88adc8cd2518"
-CLIENT_SECRET = "91af3f95d59d40fab7cd5aff6a57c6df"
 
 def main(argv):
     try:
@@ -26,25 +23,37 @@ def main(argv):
         elif opt == ("-t"):
             print("Getting today tasks")
 
-    # api_link = APILink()
-    # token = api_link.get_auth_token()
-    # print(token)
+    api_link = read_app_info()
 
-    fbAuth = HttpServerHandler.TokenHandler(CLIENT_ID, CLIENT_SECRET)
+    # TODO this has to be only done once when I need to login and auth this app
+    # Once that's done, I only need to do this if token expired or was revoked.
+    tdAuth = HttpServerHandler.TokenHandler(
+        api_link.get_client_id(), api_link.get_client_secret())
 
-    access_token = fbAuth.get_access_token()
-    print("main: Access token " + access_token)
+    access_token = tdAuth.get_access_token()
+    api_link.set_access_token(access_token)
+    print("main: Access token " + api_link.get_access_token())
 
-    # access_token = "049087b73474184fa848902a34ebde8f3db2f43b"
-
-    api_link = APILink()
-    response = api_link.syncronize(access_token)
+    response = api_link.syncronize(api_link.get_access_token())
     for project in response['Projects']:
         print(project['name'])
     # api_link.addItem("test new item")
 
+"""
+Reads app info such as client secret, client id and access token from
+.todoist file in home directory.
+"""
+def read_app_info():
+    home = os.path.expanduser("~")
+    target = open(home + "/.todoist", 'r')
+    client_id = target.readline().rstrip().split(" ", 1)[1]
+    client_secret = target.readline().rstrip().split(" ", 1)[1]
+    print("client_id=\t" + client_id + "\nclient_secret=\t" + client_secret)
+    target.close()
+    return APILink(client_id, client_secret)
 
 
-# run
+
+""" ************************** RUN ***************************** """
 if __name__ == "__main__":
     main(sys.argv[1:])
