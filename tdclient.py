@@ -1,12 +1,13 @@
 import sys, getopt, os, pwd
-from APILink import APILink
-# from HTTPServerHandler import HTTPServerHandler
-# from HTTPServerHandler import TokenHandler
 import HttpServerHandler
+from APILink import APILink
 
 usage = ("\nTODO usage")
 
 def main(argv):
+    """
+    Main function
+    """
     try:
         opts, args = getopt.getopt(argv, "ht")
         if len(argv) == 0:
@@ -23,36 +24,51 @@ def main(argv):
         elif opt == ("-t"):
             print("Getting today tasks")
 
+
     api_link = read_app_info()
-
-    # TODO this has to be only done once when I need to login and auth this app
-    # Once that's done, I only need to do this if token expired or was revoked.
-    tdAuth = HttpServerHandler.TokenHandler(
-        api_link.get_client_id(), api_link.get_client_secret())
-
-    access_token = tdAuth.get_access_token()
-    api_link.set_access_token(access_token)
-    print("main: Access token " + api_link.get_access_token())
-
     response = api_link.syncronize(api_link.get_access_token())
     for project in response['Projects']:
         print(project['name'])
-    # api_link.addItem("test new item")
 
-"""
-Reads app info such as client secret, client id and access token from
-.todoist file in home directory.
-"""
+    # 8310ec52fc38691d04d834ebe2025674fbb0c86b
+    os._exit(0)
+
 def read_app_info():
+    """
+    Reads client secret, client id and access token from $HOME/.todoist
+    """
     home = os.path.expanduser("~")
-    target = open(home + "/.todoist", 'r')
-    client_id = target.readline().rstrip().split(" ", 1)[1]
-    client_secret = target.readline().rstrip().split(" ", 1)[1]
-    print("client_id=\t" + client_id + "\nclient_secret=\t" + client_secret)
-    target.close()
-    return APILink(client_id, client_secret)
+    target = open(home + "/.todoist", 'r+')
 
+    try:
+        client_id = target.readline().rstrip().split(" ", 1)[1]
+        client_secret = target.readline().rstrip().split(" ", 1)[1]
 
+    except IndexError:
+        print("read_app_info: no client id or client secret in ~/.todoist.")
+    try:
+        access_token = target.readline().rstrip().split(" ", 1)[1]
+    except IndexError:
+        print("read_app_info: no access token. Getting token.")
+        access_token = get_oauth_access_token_with(client_id, client_secret)
+        target.close()
+        with open(home + "/.todoist", 'a') as target:
+            target.write("access_token: " + access_token + "\n")
+
+    print("client_id=\t" + client_id
+            + "\nclient_secret=\t" + client_secret
+            + "\naccess_token=\t" + access_token)
+
+    return APILink(client_id, client_secret, access_token)
+
+def get_oauth_access_token_with(client_id, client_secret):
+    """
+    Get access token if there is none in the config file.
+    """
+    tdAuth = HttpServerHandler.TokenHandler(client_id, client_secret)
+    access_token = tdAuth.get_access_token()
+    print("get_oauth_access_token_with: new access token " + access_token)
+    return access_token
 
 """ ************************** RUN ***************************** """
 if __name__ == "__main__":

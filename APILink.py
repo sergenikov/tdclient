@@ -9,10 +9,11 @@ class APILink(object):
     _client_secret = ""
     _access_token = ""
 
-    def __init__(self, client_id, client_secret):
+    def __init__(self, client_id, client_secret, access_token):
         """ Constructor """
         self._client_id = client_id
         self._client_secret = client_secret
+        self._access_token = access_token
 
     def get_client_id(self):
         return self._client_id

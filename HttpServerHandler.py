@@ -4,6 +4,11 @@ import urllib.request
 from webbrowser import open_new
 import json
 
+"""
+Credit: this code is based on the following tutorial:
+https://www.pmg.com/blog/logging-facebook-oauth2-via-command-line-using-python/
+"""
+
 REDIRECT_URL = 'http://localhost:8080/'
 PORT = 8080
 
