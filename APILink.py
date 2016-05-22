@@ -60,6 +60,3 @@ class APILink(object):
         print(response.content)
         print(response.url)
         print(response.is_redirect)
-
-    def addItem(self, item_name):
-        self._api.items.add(item_name)
