@@ -21,13 +21,16 @@ class ParseTest(unittest.TestCase):
         self.resp_file.close()
 
     """ Test methods """
-    def test_read_all_items(self):
-        items = self.parser.get_today_tasks()
-        if items is not None: 
-            self.assertEqual(7, len(items))
+    #def test_read_all_items(self):
+    #    items = self.parser.get_today_tasks()
+    #    if items is not None:
+    #        self.assertEqual(7, len(items))
 
     def test_today_items(self):
         today_items = self.parser.get_today_tasks()
+        print("due today list has %d items" % len(today_items))
+        for item in today_items:
+            print("due today: " + item['content'])
 
 
 
