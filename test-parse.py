@@ -26,6 +26,9 @@ class ParseTest(unittest.TestCase):
         if items is not None: 
             self.assertEqual(7, len(items))
 
+    def test_today_items(self):
+        today_items = self.parser.get_today_tasks()
+
 
 
 if __name__ == '__main__':
