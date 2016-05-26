@@ -18,9 +18,9 @@ class Parser(object):
     def get_today_tasks(self):
         items = self.response['Items']
         due_today = []
-        date = "Sun 22 May 2016 06:59:59 +0000"
+        #date = "Sun 22 May 2016 06:59:59 +0000"
         for item in items:
-            if item['due_date'] != "None":
+            if item['due_date'] != "None" and item['due_date'] is not None:
                 d = datetime.datetime.strptime(item['due_date'], DATE_PATTERN)
                 if d.date() == self.datetime_today.date():
                     due_today.append(item)
