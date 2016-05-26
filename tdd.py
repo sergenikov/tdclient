@@ -32,5 +32,4 @@ class TDDaemon(object):
         self.response = self._api_link.syncronize(self._api_link.get_access_token())
         self.parser = Parser(self.response)
         today_tasks = self.parser.get_today_tasks()
-        for item in today_tasks:
-            pprint(item)
+        return today_tasks
